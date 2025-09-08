@@ -250,6 +250,8 @@ function Rendoc:renderLines(start, height)
   start = start or 1
   height = height or #self
 
+  local linkCode = (gpu.getDepth() > 1) and "\x1B[36m" or "\x1B[7m"
+
   local res = {}
   for i = start,start+height-1 do
     local block = self[i]
@@ -257,7 +259,7 @@ function Rendoc:renderLines(start, height)
       local line = ""
       for j, seg in ipairs(block) do
         local render = seg.text
-        if seg.href then render = "\x1B[36m" .. render .. "\x1B[0m" end
+        if seg.href then render = linkCode .. render .. "\x1B[0m" end
         render = (j>1 and " " or "") .. render
         line = line .. render
       end
