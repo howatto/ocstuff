@@ -155,21 +155,24 @@ listMenu = newMenu{
   init = function(self)
     self.scrollPos = 1
     self.cursorPos = 1
+    if not self.items then self.items = {} end
   end,
   draw = function(self)
     term.clear()
-    for i = 1, scHeight-1 do
-      local realI = i+self.scrollPos-1
-      local item = self.items[realI]
-      if not item then break end
-      term.setCursor(1, i)
-      io.write((self.cursorPos == realI) and "\x1B[7m" or "")
-      local text = self:itemText(item)
-      io.write(text)
-      io.write(charLine(" ", scWidth-#text).. "\x1B[0m")
-    end
-    if self.items[self.cursorPos].desc then
-      self.status = self.items[self.cursorPos].desc
+    if #self.items > 0 then
+      for i = 1, scHeight-1 do
+        local realI = i+self.scrollPos-1
+        local item = self.items[realI]
+        if not item then break end
+        term.setCursor(1, i)
+        io.write((self.cursorPos == realI) and "\x1B[7m" or "")
+        local text = self:itemText(item)
+        io.write(text)
+        io.write(charLine(" ", scWidth-#text).. "\x1B[0m")
+      end
+      if self.items[self.cursorPos].desc then
+        self.status = self.items[self.cursorPos].desc
+      end
     end
   end,
   itemText = function(self, item)
@@ -186,6 +189,7 @@ listMenu = newMenu{
     end
   end,
   selectItem = function(self)
+    if #self.items == 0 then return end
     if self.onSelect then
       return self:onSelect(self.items[self.cursorPos])
     else
