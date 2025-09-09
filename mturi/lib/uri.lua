@@ -21,7 +21,14 @@ local function tableSlice(t, start, stop)
   return res
 end
 
+local function unescape(st)
+  return st:gsub("%%([0-9a-fA-F][0-9a-fA-F])", function(x)
+                   return string.char(tonumber(x, 16))
+  end)
+end
+
 local function parseArg(s)
+  s = unescape(s)
   if string.match(s, "^%d") then
     return tonumber(s) or s
   elseif s=="true" then return true
