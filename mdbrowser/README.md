@@ -13,6 +13,6 @@ Also provided is `mdless`, a simple wrapper for the browser library to let you v
 
 ## Known issues
 
-- So far reflowing hasn't been tested with words longer than the width of the screen.
+- So far reflowing hasn't been tested with words longer than the output width.
 - No support for any formatting besides hyperlinks and level 1+2 headings. Support for lists is planned, but stuff like bold, italics, and underline will probably stay out. Not like OC has a way to render it anyhow.
 - Apparently Markdown renderers are supposed to treat contiguous lines as being part of the same paragraph, without any line breaks in it. This renderer doesn't do that.

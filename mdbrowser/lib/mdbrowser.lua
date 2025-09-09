@@ -15,7 +15,6 @@ local function charLine(c, len)
   return st
 end
 
-
 local linkFinderMenu = mei.newMenu{
   init = function(self)
     if self.links then
@@ -59,16 +58,6 @@ local browserMenu = mei.newMenu{
   draw = function(self)
     term.clear()
     self.flowed:draw(self.scrollPos, scHeight-1)
-    term.setCursor(1, scHeight)
-    io.write("\x1B[7m")
-    for i = 1,scWidth do
-      io.write(" ")
-    end
-    io.write("\x1B[0m")
-    term.setCursor(1, scHeight)
-
-    io.write("\x1B[7m"..self.status.."\x1B[0m")
-    self.status = ""
   end,
   onQuit = function(self)
     term.clear()
@@ -174,10 +163,11 @@ local browserMenu = mei.newMenu{
 local function runBrowser(data)
   local menuData = {
     base = browserMenu,
-    keymap = {},
+    keymap = data.keymap,
     onLink = data.onLink,
     rendoc = markdown.makeRendoc(data.markdown)
   }
+  --[[
   -- keybinds
   for k, v in pairs(browserMenu.keymap) do
     menuData.keymap[k] = v
@@ -187,6 +177,7 @@ local function runBrowser(data)
       menuData.keymap[k] = v
     end
   end
+  ]]--
 
   local function listMT(t)
     local idx = getmetatable(t).__index

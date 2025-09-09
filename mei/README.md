@@ -3,8 +3,9 @@ Also known as "what happens when you find writing your own TUI library easier th
 
 Anyway, the basis of everything is `newMenu`. Call it with a table of properties to set it up and return your new menu, then call `menu:run()` to start running it.
 
-## Properties
+## Menu properties
 - `base` - If this is defined, `newMenu` will use it as the __index of its metatable.
+- `init(self)` - What to run upon definition of the menu.
 - `draw(self)` - This needs to be defined. It's where you put all the code to actually draw the menu.
 - `onQuit(self)` - What to do right before `run` returns.
 - `keymap` - A key-value table with the key being the, uh... key (as defined in the [keyboard API](https://ocdoc.cil.li/api:keyboard)'s `keyboard.keys`) and the value being another table with two values:
@@ -12,11 +13,23 @@ Anyway, the basis of everything is `newMenu`. Call it with a table of properties
   - `help` - Optional help text for `showHelp`.
   - Tip: omit `keymap` to make the menu quit after any keypress.
 - `miscmap` - Table of handlers for other OC events. Key is the event name, value is a function taking `self` and all the values `event.pull` normally outputs (minus the first). Currently only `scroll` and `touch` are supported.
+- `status` - This property is meant to be modified over time. If it exists, this text will be displayed on the bottom of the screen in inverted colors.
 
-
-## Methods
+## Menu methods
 
 - `run()` - Starts running the menu.
 - `quit(quitReturn)` - Tells the menu to quit next frame and return `quitReturn`.
 - `callSubmenu(submenu)` - `submenu` should be another menu, which will serve as the base for the one that actually gets run.
 - `showHelp()` - Lists the help text for each of the menu's keybinds. 
+
+## List menus
+For convenience, a generic list menu is available as `listMenu`. Pass a table of tables as `items` with the following structure:
+- `text` - What to display for this option.
+- `desc` - If defined, will change `status` to this when the cursor is over this one.
+
+Also define `onSelect(self, item)` to handle what happens when the user selects an option. `item` is the particular table you defined in `items`, so you can stick whatever extra data you need besides the text and description. You can also leave it undefined to have the menu return said table upon selection.
+
+## Miscellaneous functions
+Well, one function right now, but still...
+
+- `charLine(c, len)` - Little helper function, returns `c` repeated `len` times. 

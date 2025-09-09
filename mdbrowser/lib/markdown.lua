@@ -1,4 +1,5 @@
 local gpu = require("component").gpu
+local mei = require("mei") -- mdbrowser depends on mei anyhow so...
 
 -- stolen from stackoverflow then generalized a bit
 local function splitGen(st, match)
@@ -24,27 +25,19 @@ local function trim(st)
   return st:gsub("^%s+", ""):gsub("%s+$", "")
 end
 
-local function charLine(c, len)
-  local st = ""
-  for i = 1,len do
-    st = st .. c
-  end
-  return st
-end
-
 local blockHooks = {
   -- h2 (yeah. lua's dogass pattern matching doesn't allow for ^ so i gotta do
   -- it in reverse.)
   {pattern = "## (.*)",
    process = function(s)
-     return {s, charLine("-", #s)}
+     return {s, mei.charLine("-", #s)}
    end,
    newline = true
   },
   -- h1
   {pattern = "# (.*)",
    process = function(s)
-     return {s, charLine("=", #s)}
+     return {s, mei.charLine("=", #s)}
    end,
    newline = true
   }
@@ -65,8 +58,8 @@ local inlineHooks = {
   }
 }
 
--- rendoc (n.) renderable document. or maybe rendered document. i don't care, i
--- thought it up in like a second
+-- rendoc (n.): renderable document. or maybe rendered document. i don't care,
+-- i thought it up in like a second
 local Rendoc = {}
 Rendoc.mt = {__index = Rendoc}
 
