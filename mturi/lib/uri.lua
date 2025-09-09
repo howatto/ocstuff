@@ -53,10 +53,17 @@ local function parseURI(uri)
 
   local pathSplit = split(path, "/")
 
-  local authority = pathSplit[1]
-  local userInfo, preHost = table.unpack(split(authority, "@"))
+  local authority = split(pathSplit[1], "@")
+  local userInfo, preHost
+  if #authority == 2 then
+    userInfo, preHost = table.unpack(authority)
+  else
+    preHost = authority[1]
+  end
   res.host, res.port = table.unpack(split(preHost, ":"))
-  res.user, res.pass = table.unpack(split(userInfo, ":"))
+  if userInfo then
+    res.user, res.pass = table.unpack(split(userInfo, ":"))
+  end
   res.func = pathSplit[2]
   res.args = map(tableSlice(pathSplit, 3), parseArg)
 
