@@ -2,12 +2,33 @@ screen = require("component").screen
 keyboard = require("keyboard")
 event = require("event")
 
+local function map(t, f)
+  local res = {}
+  for k, v in pairs(t) do
+    table.insert(res, f(v))
+  end
+  return res
+end
+
 local function charLine(c, len)
   local st = ""
   for i = 1,len do
     st = st .. c
   end
   return st
+end
+
+local function tabulate(spacing, items)
+  local i = 0
+  local formatSt = table.concat(map(spacing, function(item)
+                                      i = i+1
+                                      return ("%%%ds"):format(spacing[i])
+                                   end), " ")
+  i = 0
+  return formatSt:format(table.unpack(map(items, function(x)
+                                            i = i+1
+                                            return tostring(x):sub(1, math.abs(spacing[i]))
+  end)))
 end
 
 local Menu = {}
@@ -143,12 +164,16 @@ listMenu = newMenu{
       if not item then break end
       term.setCursor(1, i)
       io.write((self.cursorPos == realI) and "\x1B[7m" or "")
-      io.write(item.text)
-      io.write(charLine(" ", scWidth-#item.text).. "\x1B[0m")
+      local text = self:itemText(item)
+      io.write(text)
+      io.write(charLine(" ", scWidth-#text).. "\x1B[0m")
     end
     if self.items[self.cursorPos].desc then
       self.status = self.items[self.cursorPos].desc
     end
+  end,
+  itemText = function(self, item)
+    return item.text
   end,
   moveCursor = function(self, delta)
     self:setCursor(self.cursorPos + delta)
@@ -216,5 +241,6 @@ return {
   Menu = Menu,
   newMenu = newMenu,
   listMenu = listMenu,
-  charLine = charLine
+  charLine = charLine,
+  tabulate = tabulate
 }
