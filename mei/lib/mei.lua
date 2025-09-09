@@ -166,7 +166,7 @@ listMenu = newMenu{
     else
       self:quit(self.items[cursorPos])
     end
-  end
+  end,
   keymap = {
     q = {
       help = "Quit",
