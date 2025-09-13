@@ -1,6 +1,3 @@
-package.loaded.markdown = nil
-package.loaded.mdbrowser = nil
-package.loaded.mei = nil
 markdown = require("markdown")
 mdbrowser = require("mdbrowser")
 keyboard = require("keyboard")

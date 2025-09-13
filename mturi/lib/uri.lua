@@ -46,6 +46,7 @@ end
 
 local function parseURI(uri)
   local res = {}
+  res.raw = uri
   local scheme, prePath = string.gmatch(uri, "([%w%-]+)://(.+)")()
   res.scheme = scheme
   local path, preQuery = table.unpack(split(prePath, "%?"))
@@ -93,5 +94,6 @@ return {callURI = function(uri)
           end
           return nil, string.format("unknown uri scheme \"%s\"", u.scheme)
 end,
-        parseURI = parseURI
+        parseURI = parseURI,
+        unescape = unescape
 }

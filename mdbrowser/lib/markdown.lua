@@ -183,8 +183,10 @@ function Rendoc:reflow(width)
       end
 
       local function finishWorkSeg()
-        workSeg.upper = workSeg.lower + #workSeg.text - 1
-        table.insert(workBlock, workSeg)
+        if #workSeg.text > 0 then
+          workSeg.upper = workSeg.lower + #workSeg.text - 1
+          table.insert(workBlock, workSeg)
+        end
       end
 
       initWorkSeg()

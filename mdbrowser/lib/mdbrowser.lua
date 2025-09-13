@@ -1,11 +1,10 @@
 markdown = require("markdown")
+uri = require("uri")
 mei = require("mei")
 keyboard = require("keyboard")
 event = require("event")
 gpu = require("component").gpu
 term = require("term")
-
-local scWidth, scHeight = gpu.getResolution()
 
 local function charLine(c, len)
   local st = ""
@@ -34,8 +33,8 @@ local linkFinderMenu = mei.newMenu{
   end,
   draw = function(self)
     for i, link in ipairs(self.links) do
-      term.setCursor(link.x, link.y)
-      io.write(("\x1B[7m[%s]\x1B[0m"):format(self.keyNums[i]))
+      if not self.keyNums[i] then break end
+      self:drawText(link.x, link.y, ("\x1B[7m[%s]\x1B[0m"):format(self.keyNums[i]))
     end
   end,
   keymap = {
@@ -47,9 +46,9 @@ local linkFinderMenu = mei.newMenu{
 }
 
 local browserMenu = mei.newMenu{
+  showStatus = true,
   init = function(self)
     if self.rendoc then
-      --self.rendoc = markdown.makeRendoc(io.read("*all"))
       self.flowed = self.rendoc:reflow()
       self.scrollPos = 1
       self.status = "Press 'h' for help."
@@ -57,7 +56,10 @@ local browserMenu = mei.newMenu{
   end,
   draw = function(self)
     term.clear()
-    self.flowed:draw(self.scrollPos, scHeight-1)
+    local lines = self.flowed:renderLines(self.scrollPos, self:getHeight())
+    for k, v in ipairs(lines) do
+      self:drawText(1, k, v)
+    end
   end,
   onQuit = function(self)
     term.clear()
@@ -69,10 +71,18 @@ local browserMenu = mei.newMenu{
   scroll = function(self, d)
     self.scrollPos = math.max(1, math.min(self.scrollPos + d, #self.flowed))
   end,
-  followLink = function(self, uri)
-    self.status = ("Following %s"):format(uri)
+  followLink = function(self, link)
+    local parsed = uri.parseURI(link)
+    if self.schemes then
+      if self.schemes[parsed.scheme] then
+        return self.schemes[parsed.scheme](self, parsed)
+      else
+        return self.schemes[false] and self.schemes[false](self, parsed)
+      end
+    end
+    --self.status = ("Following %s"):format(link)
     if self.onLink then
-      self:onLink(uri)
+      return self:onLink(link)
     end
   end,
   keymap = {
@@ -90,7 +100,7 @@ local browserMenu = mei.newMenu{
         -- aaaghsdfgfhg izzy why did you even suggest thiiiiiiiiiis
         local prevHref
         local links = {}
-        for y = 1,scHeight-1 do
+        for y = 1,self:getHeight() do
           local curLine = self.flowed[y + (self.scrollPos - 1)]
           if not curLine then break end
           for _, seg in ipairs(curLine) do
@@ -126,12 +136,12 @@ local browserMenu = mei.newMenu{
     },
     pageUp = {
       func = function(self)
-        self:scroll(-(scHeight-1))
+        self:scroll(-self:getHeight())
       end
     },
     pageDown = {
       func = function(self)
-        self:scroll(scHeight-1)
+        self:scroll(self:getHeight())
       end
     },
   },
@@ -165,7 +175,8 @@ local function runBrowser(data)
     base = browserMenu,
     keymap = data.keymap,
     onLink = data.onLink,
-    rendoc = markdown.makeRendoc(data.markdown)
+    rendoc = markdown.makeRendoc(data.markdown),
+    schemes = data.schemes
   }
   --[[
   -- keybinds
