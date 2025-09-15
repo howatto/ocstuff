@@ -152,6 +152,7 @@ local browserMenu = mei.newMenu{
     touch = function(self, name, screen, x, y, button)
       local lineClicked = y + (self.scrollPos - 1)
       local line = self.flowed[lineClicked]
+      if not line then return end
       local boxes = {}
       local segClicked = nil
       for _, seg in ipairs(line) do
